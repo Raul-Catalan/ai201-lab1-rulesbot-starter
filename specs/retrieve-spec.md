@@ -45,7 +45,7 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *Describe how you will use `_collection.query()` to find relevant chunks. What arguments will you pass, and why?*
 
 ```
-[your answer here]
+[We will first pass query_texts with our input query, then n_results with our number of chunks we decided earlier, and in the include arugment the relevant information we want.]
 ```
 
 ---
@@ -55,7 +55,16 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *Sketch out what one item in your return list looks like as a concrete example. Where does each field come from in the query results?*
 
 ```
-[your answer here]
+return_list[0] = {
+    "text":"When a player rolls a 1, go forward one space. When a player rolls a 2...",
+    "game":"Catan",
+    "distance": 0.1
+}
+
+Each field comes from the dictionary in the list of dictionaries in the return result.
+The text field represents the raw text from the document, will some overlap between chunks.
+The game field shows what game the chunk belongs to.
+The distance field, is the cosine similiarity score from the user's query and the chunk information.
 ```
 
 ---
@@ -65,7 +74,8 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *`_collection.query()` returns nested lists. Describe what index you need to access to get the actual list of results for a single query, and why the nesting exists.*
 
 ```
-[your answer here]
+The query result returns a nested list of lists. The query return expects multiple user queries so for each one, it will return a list of dictionaries inside a list for multiple queries. 
+Since we are only sending one query at a time, the result will be at the zero index, which will be a list of dictionaries that are the k closests chunks to the users query.
 ```
 
 ---
@@ -75,7 +85,8 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *Will you filter out results above a certain distance score, or return all `n_results` regardless of how relevant they are? What are the tradeoffs of each approach?*
 
 ```
-[your answer here]
+I will filter out the results above 0.5 distance. 
+The trade off of having a threshhold is that it does filter out irrelavant data as well to keep the models answer from bloating. The downside to this is that it may provide less context to the model than we would like, potentially leading to a cannot answer result.
 ```
 
 ---
@@ -85,7 +96,7 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 *How does your implementation behave when: (a) the collection is empty, (b) the query matches no chunks well, (c) the query matches chunks from multiple games?*
 
 ```
-[your answer here]
+[When the collection is empty we just return an empty list that will prompt the model to respond with not enough information to make a response. The query doesn't filter out chunks so the information will get passed to the model. The query does not handle multiple game matches so errors can occur if the user query asks about an aspect about a game that can apply to multiple games, such as "How do I win?"]
 ```
 
 ---
@@ -97,14 +108,14 @@ Results should be ordered from most to least relevant (lowest to highest distanc
 **Test query and top result returned:**
 
 ```
-Query: [your test query]
-Top result game: [game name]
-Distance score: [score]
-Does it make sense? [yes / no / explain]
+Query: [What happens when you roll a 7?]
+Top result game: [Risk]
+Distance score: [0.597]
+Does it make sense? [yes]
 ```
 
 **One thing about the query results that surprised you:**
 
 ```
-[your answer here]
+Given the abstract question of what happens when I roll a 7, the closests chunks resulted from the game of Risk which have special context when the user rolls a 7.
 ```

@@ -42,7 +42,14 @@ Returns a fallback string (not an error) when `retrieved_chunks` is empty.
 *How will you format the retrieved chunks before passing them to the LLM? Describe the structure — not the code. Consider: will you label chunks by game? Include distance scores? Separate chunks with delimiters?*
 
 ```
-[your answer here]
+Here are the rules you can use:
+
+Game: [game]
+Rule: [text]
+---
+Game: [game]
+Rule: [text]
+---
 ```
 
 ---
@@ -52,7 +59,12 @@ Returns a fallback string (not an error) when `retrieved_chunks` is empty.
 *Write the exact system prompt instruction you will use to prevent the model from answering beyond the retrieved text. This is the most important design decision in this function.*
 
 ```
-[your answer here]
+[You are a rule bot that strictly follows rules for board games. Your job is to answer questions on board games using ONLY the rule text provided below. 
+
+- When you provide an answer, you must cite the game it came from at the end of your response like this: [Source: Game Name].
+- Do not draw on outside knowledge, your training data, or fill in gaps from what you know about board games.
+- Do not guess, infer, or logically deduce rules that are not explicitly written in the text.
+- If the answer is not contained in the provided text, you must reply with exactly: "I do not have enough information to answer that." Do not add any other explanation.]
 ```
 
 ---
@@ -62,7 +74,7 @@ Returns a fallback string (not an error) when `retrieved_chunks` is empty.
 *Write the exact instruction you will use to tell the model to identify which game its answer comes from.*
 
 ```
-[your answer here]
+[When you provide an answer, you must cite the game it came from at the end of your response like this: [Source: Game Name].]
 ```
 
 ---
@@ -72,7 +84,7 @@ Returns a fallback string (not an error) when `retrieved_chunks` is empty.
 *What should the response say when the answer isn't found in the loaded rule books? Write the exact fallback message.*
 
 ```
-[your answer here]
+[- If the answer is not contained in the provided text, you must reply with exactly: "I do not have enough information to answer that." Do not add any other explanation.]
 ```
 
 ---
@@ -82,7 +94,7 @@ Returns a fallback string (not an error) when `retrieved_chunks` is empty.
 *`retrieved_chunks` may include chunks with high distance scores (weak relevance). Will you filter these out before building context, pass them all in, or handle them another way? What are the tradeoffs?*
 
 ```
-[your answer here]
+[Currently I will pass all the relevant chunks in. The tradeoff is that the LLM will always recieve some chunks, but may recieve irrelevant chunks.]
 ```
 
 ---
@@ -92,7 +104,7 @@ Returns a fallback string (not an error) when `retrieved_chunks` is empty.
 *Describe how you will structure the messages list for the API call — what goes in the system message vs. the user message?*
 
 ```
-[your answer here]
+[The system message will tell the model how to behave and what actions to perform. The user message will hold the raw user query.]
 ```
 
 ---
@@ -104,14 +116,14 @@ Returns a fallback string (not an error) when `retrieved_chunks` is empty.
 **Test query and response:**
 
 ```
-Query: [your test query]
-Response: [abbreviated response]
-Correctly grounded? [yes / no]
-Cited the right game? [yes / no]
+Query: [How do you get out of Jail in Monopoly?]
+Response: [Pay 50$ or use a get out of jail free card or roll doubles on three turns in jail]
+Correctly grounded? [yes]
+Cited the right game? [yes]
 ```
 
 **One thing you changed from your original spec after seeing the actual output:**
 
 ```
-[your answer here]
+[One thing I changed from my original spec was adding citations as well as explicity stating not to use prior knowledge and training, only the prociveded chunks.]
 ```

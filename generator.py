@@ -36,4 +36,35 @@ def generate_response(query, retrieved_chunks):
         )
 
     # Your implementation here.
-    return "⚙️ Response generation not yet implemented. Complete Milestone 3 to activate answers."
+    context_string = "Here are the rules you can use:\n\n"
+    for chunk in retrieved_chunks:
+        context_string += f"Game: {chunk['game']}\n"
+        context_string += f"Rule: {chunk['text']}\n"
+        context_string += "---\n"
+        
+    # 2. Strict grounding instruction (exact copy from spec)
+    system_instruction = (
+        "You are a rule bot that strictly follows rules for board games. Your job is to answer "
+        "questions on board games using ONLY the rule text provided below. \n\n"
+        "- When you provide an answer, you must cite the game it came from at the end of your response like this: [Source: Game Name].\n"
+        "- Do not draw on outside knowledge, your training data, or fill in gaps from what you know about board games.\n"
+        "- Do not guess, infer, or logically deduce rules that are not explicitly written in the text.\n"
+        "- If the answer is not contained in the provided text, you must reply with exactly: "
+        '"I do not have enough information to answer that." Do not add any other explanation.'
+    )
+
+    # 3. Combine context and the user's question into the user message
+    user_message = f"{context_string}\n\nQuestion: {query}"
+
+    # 4. Call the LLM
+    response = _client.chat.completions.create(
+        model=LLM_MODEL, # Use the model variable from your config.py
+        messages=[
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": user_message}
+        ]
+    )
+
+    # 5. Return just the plain string response
+    print("LLM response:", response.choices[0].message.content)
+    return response.choices[0].message.content
